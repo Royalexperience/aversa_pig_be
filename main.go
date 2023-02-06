@@ -1,6 +1,6 @@
 package main
 
-import (
+/*import (
 	"net/http"
 
 	"errors"
@@ -109,4 +109,57 @@ func main() {
 	router.PATCH("/checkout", checkoutBook)
 	router.PATCH("/return", returnBook)
 	router.Run("localhost:8080")
+}*/
+
+
+import (
+	"database/sql"
+	"encoding/json"
+	"log"
+	"net/http"
+	_ "github.com/lib/pq"
+)
+
+// User rappresenta una riga della tabella utenti
+type User struct {
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+func main() {
+	db, err := sql.Open("postgres", "postgres://postgres:postgres@192.168.1.16:5660/postgres?sslmode=disable")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	http.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, http.StatusText(405), 405)
+			return
+		}
+
+		rows, err := db.Query("SELECT email, username, password FROM utenti")
+		if err != nil {
+			http.Error(w, http.StatusText(500), 500)
+			return
+		}
+		defer rows.Close()
+
+		users := []User{}
+		for rows.Next() {
+			var u User
+			if err := rows.Scan(&u.Email, &u.Username, &u.Password); err != nil {
+				http.Error(w, http.StatusText(500), 500)
+				return
+			}
+			users = append(users, u)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(users)
+	})
+
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
