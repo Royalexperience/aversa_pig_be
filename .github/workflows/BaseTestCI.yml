@@ -32,11 +32,13 @@ jobs:
         go test ./...
 
     - name: Start PostgreSQL
-      uses: sameersbn/action-postgresql@v0.6.0
-      with:
+      uses: docker://postgres:11-alpine
+
+      env:
         POSTGRES_DB: ${{ env.POSTGRES_DB }}
         POSTGRES_USER: ${{ env.POSTGRES_USER }}
         POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+        POSTGRES_HOST_AUTH_METHOD: trust
 
     - name: Test API with PostgreSQL
       run: |
