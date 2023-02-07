@@ -146,7 +146,7 @@ func main() {
 			return
 		}
 		defer rows.Close()
-// CI TEST2
+// CI TEST3
 		users := []User{}
 		for rows.Next() {
 			var u User
