@@ -43,10 +43,10 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Setup PostgreSQL
-      uses: bitnami/bitnami-action-postgresql@v1
+      uses: bitnami/bitnami-action-postgresql@v2
       with:
         POSTGRESQL_ROOT_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
-        POSTGRESQL_DATABASE: testdb
+        POSTGRESQL_DATABASE: postgres
         POSTGRESQL_USERNAME: ${{ env.POSTGRES_USERNAME }}
         POSTGRESQL_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
 
