@@ -128,7 +128,7 @@ type User struct {
 }
 
 func main() {
-	db, err := sql.Open("postgres", "postgres://postgres:postgres@192.168.1.16:5660/postgres?sslmode=disable")
+	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost:5660/postgres?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
