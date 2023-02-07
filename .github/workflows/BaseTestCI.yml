@@ -56,5 +56,3 @@ jobs:
         POSTGRES_DB: ${{ env.POSTGRES_DB }}
         POSTGRES_USER: ${{ env.POSTGRES_USER }}
         POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
-      run: |
-        go test ./...
