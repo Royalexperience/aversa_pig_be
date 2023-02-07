@@ -1,54 +1,60 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-name: ci-test
+name: CI/CD pipeline
 
 on:
   push:
-    branches: [ svil ]
-  pull_request:
-    branches: [ svil ]
+    branches:
+      - main
+
+env:
+  env:
+  POSTGRES_HOST: 192.168.1.16
+  POSTGRES_PORT: 5660
+  POSTGRES_DB: postgres
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
 
 jobs:
-
-  test:
-    name: Test
+  build:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:12
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-        ports:
-          - 5432:5660
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
-
-    - name: Set up Go 1.x
-      uses: actions/setup-go@v2
-      with:
-        go-version: ^1.15
-      id: go
-
-    - name: Check out code into the Go module directory
+    - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install golang-migrate
+    - name: Setup Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15
+
+    - name: Install dependencies
       run: |
-        curl -L https://github.com/golang-migrate/migrate/releases/download/v4.12.2/migrate.linux-amd64.tar.gz | tar xvz
-        sudo mv migrate.linux-amd64 /usr/bin/migrate
-        which migrate
+        go get -v -t -d ./...
 
-    - name: Run migrations
-      run: make migrateup
+    - name: Build and test
+      run: |
+        go test -v ./...
 
-    - name: Test
-      run: make test
+    - name: Build binary
+      run: |
+        go build -o main
 
+  integration-tests:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Run Go REST API Tests
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15
+      env:
+        POSTGRES_HOST: ${{ env.POSTGRES_HOST }}
+        POSTGRES_PORT: ${{ env.POSTGRES_PORT }}
+        POSTGRES_DB: ${{ env.POSTGRES_DB }}
+        POSTGRES_USER: ${{ env.POSTGRES_USER }}
+        POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+      run: |
+        go test ./...
