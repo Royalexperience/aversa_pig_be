@@ -1,6 +1,9 @@
 name: Go REST API Workflow
 
-on: [push]
+on:
+  push:
+    branches:
+      - svil
 
 env:
   POSTGRES_HOST: 192.168.1.16
