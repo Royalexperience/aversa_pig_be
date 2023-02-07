@@ -1,4 +1,4 @@
-name: CI/CD pipeline
+name: Go REST API and PostgreSQL Workflow
 
 on:
   push:
@@ -6,9 +6,6 @@ on:
       - main
 
 env:
-  env:
-  POSTGRES_HOST: 192.168.1.16
-  POSTGRES_PORT: 5660
   POSTGRES_DB: postgres
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres
@@ -21,38 +18,26 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Setup Go
+    - name: Set up Go
       uses: actions/setup-go@v2
       with:
-        go-version: 1.15
+        go-version: 1.x
 
     - name: Install dependencies
       run: |
-        go get -v -t -d ./...
+        go get -v ./...
 
-    - name: Build and test
+    - name: Test API
       run: |
-        go test -v ./...
+        go test ./...
 
-    - name: Build binary
-      run: |
-        go build -o main
-
-  integration-tests:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Run Go REST API Tests
-      uses: actions/setup-go@v2
+    - name: Start PostgreSQL
+      uses: sameersbn/action-postgresql@v0.6.0
       with:
-        go-version: 1.15
-      env:
-        POSTGRES_HOST: ${{ env.POSTGRES_HOST }}
-        POSTGRES_PORT: ${{ env.POSTGRES_PORT }}
         POSTGRES_DB: ${{ env.POSTGRES_DB }}
         POSTGRES_USER: ${{ env.POSTGRES_USER }}
         POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+
+    - name: Test API with PostgreSQL
+      run: |
+        go test -v -tags=integration ./...
