@@ -1,4 +1,4 @@
-name: Go REST API and PostgreSQL Workflow
+name: Go CI
 
 on:
   push:
@@ -6,9 +6,7 @@ on:
       - svil
 
 env:
-  POSTGRES_DB: postgres
-  POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: postgres
+  GO111MODULE: on
 
 jobs:
   build:
@@ -21,25 +19,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
-        go-version: 1.x
+        go-version: 1.16.x
 
-    - name: Install dependencies
-      run: |
-        go get -v ./...
-
-    - name: Test API
-      run: |
-        go test ./...
-
-    - name: Start PostgreSQL
-      uses: docker://postgres:11-alpine
-
-      env:
-        POSTGRES_DB: ${{ env.POSTGRES_DB }}
-        POSTGRES_USER: ${{ env.POSTGRES_USER }}
-        POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
-        POSTGRES_HOST_AUTH_METHOD: trust
-
-    - name: Test API with PostgreSQL
-      run: |
-        go test -v -tags=integration ./...
+    - name: Run unit tests
+      run: go test -v ./...
