@@ -1,12 +1,12 @@
-name: CI/CD pipeline
+name: Go REST API Workflow
 
-on:
-  push:
-    branches:
-      - svil
+on: [push]
 
 env:
-  POSTGRES_USERNAME: postgres
+  POSTGRES_HOST: 192.168.1.16
+  POSTGRES_PORT: 5660
+  POSTGRES_DB: postgres
+  POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres
 
 jobs:
@@ -17,39 +17,21 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Setup Go
+    - name: Setup PostgreSQL
+      uses: postgresql/setup-postgresql@v1
+      with:
+        version: 11
+        postgresql-port: ${{ env.POSTGRES_PORT }}
+
+    - name: Run Go REST API Tests
       uses: actions/setup-go@v2
       with:
         go-version: 1.15
-
-    - name: Install dependencies
+      env:
+        POSTGRES_HOST: ${{ env.POSTGRES_HOST }}
+        POSTGRES_PORT: ${{ env.POSTGRES_PORT }}
+        POSTGRES_DB: ${{ env.POSTGRES_DB }}
+        POSTGRES_USER: ${{ env.POSTGRES_USER }}
+        POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
       run: |
-        go get -v -t -d ./...
-
-    - name: Build and test
-      run: |
-        go test -v ./...
-
-    - name: Build binary
-      run: |
-        go build -o main
-
-  integration-tests:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Setup PostgreSQL
-      uses: bitnami/bitnami-action-postgresql@v2
-      with:
-        POSTGRESQL_ROOT_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
-        POSTGRESQL_DATABASE: postgres
-        POSTGRESQL_USERNAME: ${{ env.POSTGRES_USERNAME }}
-        POSTGRESQL_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
-
-    - name: Run integration tests
-      run: |
-        go test -v ./... -run TestIntegration
+        go test ./...
