@@ -3,7 +3,7 @@ name: CI/CD pipeline
 on:
   push:
     branches:
-      - main
+      - svil
 
 env:
   POSTGRES_USERNAME: postgres
