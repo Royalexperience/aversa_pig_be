@@ -3,7 +3,7 @@ name: Go REST API and PostgreSQL Workflow
 on:
   push:
     branches:
-      - main
+      - svil
 
 env:
   POSTGRES_DB: postgres
