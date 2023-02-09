@@ -1,4 +1,4 @@
-package getallUsersData
+package apis
 
 import "net/http"
 import "encoding/json"
