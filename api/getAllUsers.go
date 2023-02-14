@@ -5,15 +5,15 @@ import "encoding/json"
 import "database/sql"
 import "aversan/BE/types"
 import "aversan/BE/utils"
+import "aversan/BE/commonFunc"
 
 // FUNZIONE CHE RESTITUISCE TUTTI I DATI DEGLI USER
 func HandleUsers(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	
 	// GESTISCE ERRORE SE IL METODO RICHIAMATO PER QUELL' API NON E' UNA GET
-	if r.Method != http.MethodGet {
-		http.Error(w, http.StatusText(405), 405)
+	if(utilityFunc.CheckMethod(r,w,utilsConstants.METHOD_GET)){
 		return
-	}
+	 }
 	
 	// ESEGUE LA QUERY E IN CASO DI ERRORE RESTITUISCE 500
 	rows, err := db.Query(utilsConstants.QUERY_ALL_DATA)
