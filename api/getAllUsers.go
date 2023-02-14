@@ -18,7 +18,7 @@ func HandleUsers(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	// ESEGUE LA QUERY E IN CASO DI ERRORE RESTITUISCE 500
 	rows, err := db.Query(utilsConstants.QUERY_ALL_DATA)
 	if err != nil {
-		http.Error(w, http.StatusText(500), 500)
+		utilityFunc.QueryErrorResponse(err,w ,err.Error())
 		return
 	}
     // CHIUDE CLOSE PER EVITARE PROBLEMI CON IL DATABASE
